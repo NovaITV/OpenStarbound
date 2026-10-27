@@ -34,7 +34,9 @@ bool ObjectOrientation::placementValid(World const* world, Vec2I const& position
 
   for (Vec2I space : spaces) {
     space += position;
-    if (world->tileIsOccupied(space, TileLayer::Foreground, false, true) || world->isTileProtected(space))
+        if ((isRealMaterial(world->material(space, TileLayer::Foreground))
+          && world->tileCollisionKind(space) >= CollisionKind::Dynamic)
+        || world->isTileProtected(space))
       return false;
   }
   return true;
