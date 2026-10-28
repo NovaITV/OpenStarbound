@@ -997,7 +997,27 @@ TileDamageResult WorldServer::damageTiles(List<Vec2I> const& positions, TileLaye
           damagePositionSet.add(entityDamagePos);
         }
 
-        for (auto entity : m_entityMap->entitiesAtTile(entityDamagePos)) {
+        auto entitiesHere = m_entityMap->entitiesAtTile(entityDamagePos);
+
+        // Overlapping objects: only the top-most object on a tile is affected,
+        // so overlapped objects can be picked up one at a time. "Top-most" uses
+        // the same order the client draws them in (placement time, then id).
+        shared_ptr<Object> topObject;
+        for (auto const& entity : entitiesHere) {
+          if (auto object = as<Object>(entity)) {
+            if (!topObject
+                || object->placedAt() > topObject->placedAt()
+                || (object->placedAt() == topObject->placedAt() && object->entityId() > topObject->entityId()))
+              topObject = object;
+          }
+        }
+        if (topObject) {
+          eraseWhere(entitiesHere, [&](TileEntityPtr const& entity) {
+              return is<Object>(entity) && entity != topObject;
+            });
+        }
+
+        for (auto entity : entitiesHere) {
           if (!damagedEntities.contains(entity)) {
             Set<Vec2I> entitySpacesSet;
             for (auto const& space : entity->spaces())
