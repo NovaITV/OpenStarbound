@@ -143,6 +143,10 @@ public:
   // no value is found.
   Json configValue(String const& name, Json const& def = Json()) const;
 
+  // Time this object was placed by a player (ms since epoch), or 0 if unknown.
+  // Used to keep the draw order of overlapping objects stable across reloads.
+  int64_t placedAt() const;
+
   ObjectConfigConstPtr config() const;
 
   float liquidFillLevel() const;

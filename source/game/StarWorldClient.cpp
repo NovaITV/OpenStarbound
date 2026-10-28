@@ -595,6 +595,14 @@ void WorldClient::render(WorldRenderData& renderData, unsigned bufferTiles) {
       renderData.overheadBars.appendAll(std::move(renderCallback.overheadBars));
 
     }, [](EntityPtr const& a, EntityPtr const& b) {
+      int64_t placedA = 0;
+      int64_t placedB = 0;
+      if (auto objectA = as<Object>(a))
+        placedA = objectA->placedAt();
+      if (auto objectB = as<Object>(b))
+        placedB = objectB->placedAt();
+      if (placedA != placedB)
+        return placedA < placedB;
       return a->entityId() < b->entityId();
     });
 

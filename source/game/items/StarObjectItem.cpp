@@ -5,6 +5,7 @@
 #include "StarObjectDatabase.hpp"
 #include "StarWorld.hpp"
 #include "StarJsonExtra.hpp"
+#include "StarTime.hpp"
 
 namespace Star {
 
@@ -76,7 +77,7 @@ bool ObjectItem::placeInWorld(FireMode, bool shifting) {
   auto pos = Vec2I(owner()->aimPosition().floor());
   auto objectDatabase = Root::singleton().objectDatabase();
   try {
-    if (auto object = objectDatabase->createForPlacement(world(), objectName(), pos, owner()->walkingDirection(), objectParameters())) {
+    if (auto object = objectDatabase->createForPlacement(world(), objectName(), pos, owner()->walkingDirection(), objectParameters().set("placedAt", Time::millisecondsSinceEpoch()))) {
       if (consume(1)) {
         world()->addEntity(object);
         return true;

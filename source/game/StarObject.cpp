@@ -511,6 +511,7 @@ void Object::destroy(RenderCallback* renderCallback) {
           if (configValue("retainObjectParametersInItem", m_config->retainObjectParametersInItem).optBool().value()) {
             auto parameters = m_parameters.baseMap();
             parameters.remove("owner");
+            parameters.remove("placedAt");
             parameters["scriptStorage"] = m_scriptComponent.getScriptStorage();
             objectItem = objectItem.applyParameters(parameters);
           }
@@ -674,6 +675,12 @@ Vec2F Object::questIndicatorPosition() const {
 
 Maybe<Json> Object::receiveMessage(ConnectionId sendingConnection, String const& message, JsonArray const& args) {
   return m_scriptComponent.handleMessage(message, sendingConnection == world()->connection(), args);
+}
+
+int64_t Object::placedAt() const {
+  if (auto value = m_parameters.ptr("placedAt"))
+    return value->optInt().value(0);
+  return 0;
 }
 
 Json Object::configValue(String const& name, Json const& def) const {
